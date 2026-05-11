@@ -1,0 +1,10 @@
+# Local development: mounts source for hot reload; deps installed inside the container.
+services:
+  web:
+    build: .
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/app
+    environment:
+      - NODE_ENV=development

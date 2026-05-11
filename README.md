@@ -1,0 +1,108 @@
+# Static maintenance page
+
+A minimal, production-ready **static** maintenance site built with **Vite**, **vanilla JavaScript**, **HTML**, and **CSS**. There is **no backend**, **no framework**, and **no React/Vue**. The built output is plain files in `dist/` suitable for any static host or CDN (including maintenance-mode or failover routing).
+
+## Purpose
+
+Serve a branded “under maintenance” experience per hostname (multi-domain / multi-tenant style), with one codebase and **hostname-based configuration** in JavaScript.
+
+## Architecture
+
+| Piece | Role |
+| --- | --- |
+| `index.html` | Minimal **bootloader**: charset, viewport, meta, empty `#app`, Vite entry script only. **No maintenance copy** in HTML. |
+| `src/main.js` | Reads `window.location.hostname`, resolves config, sets `lang` and `--brand-color`, mounts UI into `#app`. |
+| `src/config.js` | Central **CONFIG** map and `getConfig(hostname)` (exact match + optional `www.` normalization + **default** fallback). |
+| `src/maintenance.template.html` | **Layout template**: semantic markup and static copy (e.g. footer). Easier to edit than building nodes only in JS. |
+| `src/renderMaintenancePage.js` | Parses the template, then fills **`data-slot`** regions from config (logo, title, text, support link) via DOM APIs. |
+| `src/style.css` | Layout, tokens, responsive and `prefers-color-scheme` styling. |
+| `public/` | Static assets copied as-is to `dist/` (e.g. logos under `/assets/logos/`). |
+
+### Why `index.html` is intentionally content-free
+
+The shipped HTML entry stays a tiny shell so CDNs and static hosts always load the same bootloader. **Structure and static maintenance copy** (footer, element order, extra landmarks) live in **`src/maintenance.template.html`**, which is bundled and rendered at runtime. **Per-host branding** (`title`, `text`, `logo`, etc.) stays in **`config.js`**. That split keeps layout easy to edit in real HTML while `index.html` never diverges per domain.
+
+### Editing the maintenance HTML template
+
+Open **`src/maintenance.template.html`**. Keep the root **`.maintenance`** element and the **`data-slot`** attributes (`logo-wrap`, `title`, `text`, `actions`) so `renderMaintenancePage.js` can inject content. You can change classes (update **`style.css`** accordingly), reorder blocks, or edit static text in the **`<footer>`** without touching `index.html`.
+
+### Hostname-based branding
+
+At runtime, `main.js` uses `window.location.hostname` (no server logic). `getConfig()` picks the entry whose key equals the hostname after stripping a single leading `www.` (e.g. `www.example.com` → lookup `example.com`).
+
+### Fallback config
+
+If no key matches, **`CONFIG.default`** is used (spread into a fresh object so callers never mutate the canonical default).
+
+## Run locally with Docker (development)
+
+Requires Docker and Docker Compose.
+
+```bash
+docker compose up --build
+```
+
+Then open **`http://localhost:8000`**. Inside the container Vite listens on **port 80**; Docker maps **host 8000 → container 80**. Source is bind-mounted; **`npm install` runs inside the container** on start (keeps `node_modules` in sync with `package.json`). Vite serves with **hot module reload**.
+
+## Build for production
+
+On your machine (or CI):
+
+```bash
+npm install
+npm run build
+```
+
+Output: **`dist/`** (configured in `vite.config.js`).
+
+Preview locally:
+
+```bash
+npm run preview
+```
+
+## Deploy static `dist` files
+
+Upload or sync the **contents** of `dist/` to any static host or object storage behind a CDN:
+
+- S3 + CloudFront, Azure Static Web Apps, Netlify, GitHub Pages, nginx `root`, etc.
+- **No Node process** is required in production—only static files.
+- Works behind **CDN maintenance rules** or origin failover as long as the browser receives this HTML/JS/CSS bundle; hostname detection still runs in the client.
+
+## Add a new domain config
+
+1. Open `src/config.js`.
+2. Add a key **exactly matching** the hostname visitors use (e.g. `"app.mycompany.com"`).
+3. Provide fields such as `logo`, `title`, `text`, `supportUrl`, `brandColor`, `language` (see existing examples).
+4. Add logo files under `public/assets/logos/` if needed and reference them with paths like `/assets/logos/your-logo.svg`.
+5. Rebuild (`npm run build`) and deploy `dist/`.
+
+Remember: **`www.`** is stripped before lookup, so you usually only need the bare domain key unless you use a hostname that does not follow that pattern.
+
+## Test domains locally via `/etc/hosts`
+
+Point test hostnames to your machine so `window.location.hostname` matches your config keys:
+
+```
+127.0.0.1 example.test
+127.0.0.1 example-de.test
+```
+
+Then run Vite (or Docker) and visit:
+
+- `http://example.test:8000`
+- `http://example-de.test:8000`
+
+You should see **different branding** per hostname. Any hostname not listed falls back to **`CONFIG.default`**.
+
+## Scripts
+
+| Script | Description |
+| --- | --- |
+| `npm run dev` | Vite dev server |
+| `npm run build` | Production build → `dist/` |
+| `npm run preview` | Preview production build |
+
+## License
+
+Private / use as needed for your maintenance deployment.

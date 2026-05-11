@@ -1,0 +1,20 @@
+<!--
+  Maintenance page layout (semantic structure + classes).
+  Edit this file to change markup or static copy (e.g. footer).
+  Dynamic fields are filled in renderMaintenancePage.js via data-slot attributes.
+-->
+<div class="maintenance" role="main">
+  <div class="maintenance__card">
+    <div class="maintenance__logo-wrap" data-slot="logo-wrap"></div>
+
+    <h1 class="maintenance__title" data-slot="title"></h1>
+
+    <p class="maintenance__text" data-slot="text"></p>
+
+    <div class="maintenance__actions" data-slot="actions"></div>
+
+    <footer class="maintenance__footer">
+      <p class="maintenance__footer-text">Thank you for your patience.</p>
+    </footer>
+  </div>
+</div>
