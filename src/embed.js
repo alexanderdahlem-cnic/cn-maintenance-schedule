@@ -7,6 +7,9 @@
 import css from "./style.css?inline";
 import { mountMaintenanceApp } from "./mountApp.js";
 
+// DEBUG: remove after verifying the embed script runs on the remote host
+alert("maintenance-embed.js executed");
+
 const styleEl = document.createElement("style");
 styleEl.textContent = css;
 document.head.appendChild(styleEl);
