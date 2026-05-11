@@ -6,6 +6,10 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
+# Align JS-based Actions with Node 24 before Node 20 removal from runners (see GitHub changelog).
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: read
   pages: write
@@ -22,26 +26,26 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # Relative base so assets work on project Pages URLs and on *.pages.github.io previews.
       - name: Set Vite base for GitHub Pages
         run: echo "VITE_BASE=./" >> "$GITHUB_ENV"
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: "20"
+          node-version: "24"
           cache: npm
 
       - run: npm ci
 
       - run: npm run build
 
-      - uses: actions/configure-pages@v4
+      - uses: actions/configure-pages@v6
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
 
-      - uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v5
         id: deployment
