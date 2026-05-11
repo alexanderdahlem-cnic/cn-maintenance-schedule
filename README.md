@@ -61,13 +61,56 @@ Preview locally:
 npm run preview
 ```
 
-## Deploy static `dist` files
+## Deploy to GitHub Pages (`*.github.io`)
+
+This repo includes **`.github/workflows/deploy-github-pages.yml`**. It runs on every push to **`main`**, builds with the correct Vite **`base`** path, and publishes **`dist/`** via GitHub’s **Actions → Pages** flow.
+
+### One-time setup on GitHub
+
+1. Push this repo (including the workflow) to GitHub.
+2. Open the repo on GitHub → **Settings** → **Pages**.
+3. Under **Build and deployment** → **Source**, choose **GitHub Actions** (not “Deploy from a branch”).
+4. Push to **`main`** (or run **Actions** → **Deploy to GitHub Pages** → **Run workflow**). The first run may ask you to approve the **`github-pages`** environment once.
+5. After the workflow succeeds, the site URL appears in the job summary and under Pages settings. Typical URLs:
+   - **Project site** (repo name e.g. `maintenance`): **`https://<owner>.github.io/maintenance/`**
+   - **Organization/user site** (repo named **`<org>.github.io`**): **`https://<org>.github.io/`**
+
+The workflow sets **`VITE_BASE`** automatically: **`/<repo>/`** for normal repos, **`/`** when the repository name ends with **`.github.io`**.
+
+### Hostname config for GitHub Pages
+
+Visitors hit **`something.github.io`**, not your product domain. Add that hostname to **`CONFIG`** in `src/config.js` (and redeploy) if you want branding distinct from **`CONFIG.default`**, for example:
+
+```js
+"your-org.github.io": { /* … */ },
+```
+
+Use the exact hostname shown in the browser (with or without project path—only the **hostname** is used for lookup).
+
+### Private repositories
+
+GitHub Pages availability for **private** repos depends on your **GitHub plan** (e.g. GitHub Enterprise or Team features). If Pages is not available for your private repo, host **`dist/`** elsewhere or make the repo public for free Pages.
+
+---
+
+## Deploy static `dist` files (any host)
 
 Upload or sync the **contents** of `dist/` to any static host or object storage behind a CDN:
 
-- S3 + CloudFront, Azure Static Web Apps, Netlify, GitHub Pages, nginx `root`, etc.
+- S3 + CloudFront, Azure Static Web Apps, Netlify, GitHub Pages (see above), nginx `root`, etc.
 - **No Node process** is required in production—only static files.
 - Works behind **CDN maintenance rules** or origin failover as long as the browser receives this HTML/JS/CSS bundle; hostname detection still runs in the client.
+
+### Preview a GitHub Pages–style build locally
+
+Project URL uses a subpath; simulate it before deploy:
+
+```bash
+VITE_BASE=/your-repo-name/ npm run build
+npm run preview
+```
+
+Open the preview URL Vite prints (paths must match **`/<repo>/`**).
 
 ## Add a new domain config
 
