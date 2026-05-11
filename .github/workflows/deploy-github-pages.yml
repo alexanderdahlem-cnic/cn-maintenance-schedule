@@ -32,6 +32,17 @@ jobs:
       - name: Set Vite base for GitHub Pages
         run: echo "VITE_BASE=./" >> "$GITHUB_ENV"
 
+      # Canonical GitHub Pages URL for logos when using maintenance-embed.js on another domain.
+      - name: Set public asset URL for embed bundle
+        run: |
+          NAME="${{ github.event.repository.name }}"
+          OWNER="${{ github.repository_owner }}"
+          if [[ "$NAME" == *.github.io ]]; then
+            echo "VITE_ASSET_BASE_URL=https://${OWNER}.github.io" >> "$GITHUB_ENV"
+          else
+            echo "VITE_ASSET_BASE_URL=https://${OWNER}.github.io/${NAME}" >> "$GITHUB_ENV"
+          fi
+
       - uses: actions/setup-node@v6
         with:
           node-version: "24"
@@ -39,7 +50,7 @@ jobs:
 
       - run: npm ci
 
-      - run: npm run build
+      - run: npm run build && npm run build:embed
 
       - uses: actions/configure-pages@v6
 

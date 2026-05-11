@@ -114,6 +114,37 @@ npm run preview
 
 Optional: test an absolute subpath with **`VITE_BASE=/your-repo-name/`** if you deploy only that URL layout.
 
+### Embed on another website (third-party origin)
+
+**Why `<script type="module">` from GitHub Pages fails elsewhere**
+
+Browsers enforce **CORS** for **ES modules** loaded cross-origin. GitHub Pages does not send `Access-Control-Allow-Origin` for your lima-city (or other) domain, so **`index-*.js`** from **`dist/assets/`** cannot be loaded from `<script type="module" src="…">` on another host. Separate `<link>` CSS hits the same limitation.
+
+**Use the embed bundle instead**
+
+After **`npm run build && npm run build:embed`** (the GitHub Action runs both), **`dist/maintenance-embed.js`** is a **classic script** (no `type="module"`) with **CSS inlined**. Load **that single file** from your canonical Pages URL (avoid **`//`** double slashes and prefer **`https://…github.io/<repo>/`** over transient **`*.pages.github.io`** preview hosts).
+
+Example on `https://pixeldemon.lima-city.de`:
+
+```html
+<div id="app"></div>
+<script>
+  // Where logos /public files live (no trailing slash). Required when the page hostname !== GitHub Pages.
+  window.__MAINTENANCE_PUBLIC_BASE__ =
+    "https://YOUR_ORG.github.io/gweb-maintainance-static";
+</script>
+<script src="https://YOUR_ORG.github.io/gweb-maintainance-static/maintenance-embed.js"></script>
+```
+
+Optional: **`window.__MAINTENANCE_ROOT_ID__`** (default **`app`**) if your container id differs.
+
+Add **`"pixeldemon.lima-city.de"`** (or your real host) to **`CONFIG`** in `src/config.js` so branding matches that hostname.
+
+**Alternatives**
+
+- Deploy the full **`dist/`** copy on the same host as the HTML (**same origin** → normal **`index.html`** flow works).
+- Or use an **`<iframe src="https://…github.io/repo/">`** — no script embedding or CORS issues for your module bundle.
+
 ## Add a new domain config
 
 1. Open `src/config.js`.
@@ -146,6 +177,8 @@ You should see **different branding** per hostname. Any hostname not listed fall
 | --- | --- |
 | `npm run dev` | Vite dev server |
 | `npm run build` | Production build → `dist/` |
+| `npm run build:embed` | **`maintenance-embed.js`** (IIFE, for cross-origin embed) |
+| `npm run build:all` | Full site build + embed bundle |
 | `npm run preview` | Preview production build |
 
 ## License
