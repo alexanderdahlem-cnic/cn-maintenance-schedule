@@ -75,7 +75,9 @@ This repo includes **`.github/workflows/deploy-github-pages.yml`**. It runs on e
    - **Project site** (repo name e.g. `maintenance`): **`https://<owner>.github.io/maintenance/`**
    - **Organization/user site** (repo named **`<org>.github.io`**): **`https://<org>.github.io/`**
 
-The workflow sets **`VITE_BASE`** automatically: **`/<repo>/`** for normal repos, **`/`** when the repository name ends with **`.github.io`**.
+The workflow sets **`VITE_BASE=./`** so JS, CSS, and `public/` assets use **relative URLs** (`./assets/...`). That matches both **`https://<owner>.github.io/<repo>/`** and GitHub’s **`*.pages.github.io`** preview URLs, and avoids **404 HTML responses** (wrong MIME type on CSS/JS) when absolute **`/<repo>/`** paths don’t match how Pages serves the artifact.
+
+To force an absolute subpath instead (e.g. hosting only at `/<repo>/`), edit the workflow and set **`VITE_BASE=/<repo>/`** before **`npm run build`**.
 
 ### Hostname config for GitHub Pages
 
@@ -103,14 +105,14 @@ Upload or sync the **contents** of `dist/` to any static host or object storage 
 
 ### Preview a GitHub Pages–style build locally
 
-Project URL uses a subpath; simulate it before deploy:
+Same as CI (relative asset URLs):
 
 ```bash
-VITE_BASE=/your-repo-name/ npm run build
+VITE_BASE=./ npm run build
 npm run preview
 ```
 
-Open the preview URL Vite prints (paths must match **`/<repo>/`**).
+Optional: test an absolute subpath with **`VITE_BASE=/your-repo-name/`** if you deploy only that URL layout.
 
 ## Add a new domain config
 

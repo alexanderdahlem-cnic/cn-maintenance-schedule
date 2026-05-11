@@ -4,6 +4,7 @@
  */
 
 import maintenanceMarkup from "./maintenance.template.html?raw";
+import { resolvePublicUrl } from "./assetUrl.js";
 
 /**
  * @param {object} config merged config from getConfig()
@@ -28,7 +29,7 @@ export function renderMaintenancePage(config) {
     if (logoSrc) {
       const img = document.createElement("img");
       img.className = "maintenance__logo";
-      img.src = logoSrc;
+      img.src = resolvePublicUrl(logoSrc);
       img.alt = "";
       img.width = 160;
       img.height = 48;
