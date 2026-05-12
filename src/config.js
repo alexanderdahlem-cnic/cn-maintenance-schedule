@@ -37,8 +37,8 @@ const EXAMPLE_DE = {
 /** Test / demo: applies to lima-city.de and any subdomain (e.g. user123.lima-city.de). */
 const LIMA_CITY = {
   logo: "/assets/logos/lima-city-logo.svg",
-  title: "Wartungsmodus (Test)",
-  text: "Diese Demo-Konfiguration ist für lima-city.de hinterlegt. Inhalt nur zu Testzwecken.",
+  title: "Scheduled maintanances",
+  text: "This demo configuration is for lima-city.de. Contents are for testing purposes only",
   brandColor: "#1a56a8",
   serverLabel: "Lima-City (Test)",
   maintenanceWindowsUtc: [{ weekdayUtc: 4, start: "11:20", end: "11:40" }],
