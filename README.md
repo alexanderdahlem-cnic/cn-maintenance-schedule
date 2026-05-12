@@ -16,7 +16,8 @@ Serve a branded “under maintenance” experience per hostname (multi-domain / 
 | `src/main.js` | Reads `window.location.hostname`, resolves config, sets `lang` and `--brand-color`, mounts UI into `#app`. |
 | `src/config.js` | Central **CONFIG** map and `getConfig(hostname)` (**suffix match**: any subdomain of a configured domain uses that entry; **`default`** fallback). |
 | `src/maintenance.template.html` | **Layout template**: semantic markup and static copy (e.g. footer). Easier to edit than building nodes only in JS. |
-| `src/renderMaintenancePage.js` | Parses the template, then fills **`data-slot`** regions from config (logo, title, text, support link) via DOM APIs. |
+| `src/renderMaintenancePage.js` | Parses the template, fills **`data-slot`** regions, optional **schedule** block (UTC + local). |
+| `src/maintenanceSchedule.js` | Weekly **UTC** windows: next occurrence, in-progress detection, `Intl` formatting. |
 | `src/style.css` | Layout, tokens, responsive and `prefers-color-scheme` styling. |
 | `public/` | Static assets copied as-is to `dist/` (e.g. logos under `/assets/logos/`). |
 
@@ -26,7 +27,7 @@ The shipped HTML entry stays a tiny shell so CDNs and static hosts always load t
 
 ### Editing the maintenance HTML template
 
-Open **`src/maintenance.template.html`**. Keep the root **`.maintenance`** element and the **`data-slot`** attributes (`logo-wrap`, `title`, `text`, `actions`) so `renderMaintenancePage.js` can inject content. You can change classes (update **`style.css`** accordingly), reorder blocks, or edit static text in the **`<footer>`** without touching `index.html`.
+Open **`src/maintenance.template.html`**. Keep the root **`.maintenance`** element and the **`data-slot`** attributes (`logo-wrap`, `title`, `text`, `schedule`, `actions`) so `renderMaintenancePage.js` can inject content. You can change classes (update **`style.css`** accordingly), reorder blocks, or edit static text in the **`<footer>`** without touching `index.html`.
 
 ### Hostname-based branding
 
@@ -177,11 +178,26 @@ Subdomains of a configured suffix (e.g. **`pixeldemon.lima-city.de`** under **`l
 - Deploy the full **`dist/`** copy on the same host as the HTML (**same origin** → normal **`index.html`** flow works).
 - Or use an **`<iframe src="https://…github.io/repo/">`** — no script embedding or CORS issues for your module bundle.
 
+## Recurring maintenance windows (UTC)
+
+Optional per-domain fields in **`src/config.js`** (merged with `default`):
+
+- **`maintenanceWindowsUtc`**: array of `{ weekdayUtc, start, end }`.
+  - **`weekdayUtc`**: `0` = Sunday … `6` = Saturday (same as **`Date.prototype.getUTCDay()`** in UTC).
+  - **`start` / `end`**: `"HH:mm"` 24-hour on that **UTC calendar day**. **`end`** must be after **`start`** on the same day.
+- **`serverLabel`**: optional short line above the schedule (e.g. server name).
+
+The UI lists the recurring rule(s), then either **next downtime** (range in **UTC** plus the same range in the **visitor’s local time**) or **maintenance in progress until** (window end in UTC and local).
+
+**Overnight** windows (crossing UTC midnight) are not supported in one entry; add **two** array items or extend the code.
+
+**Clock:** Uses the **visitor’s device time** (client-only).
+
 ## Add a new domain config
 
 1. Open `src/config.js`.
 2. Add a key for the **registrable suffix** you want to brand (e.g. `"mycompany.com"`). That entry applies to **`mycompany.com`**, **`www.mycompany.com`**, **`app.mycompany.com`**, **`a.b.mycompany.com`**, etc. (longest matching key wins if you add overlapping suffixes).
-3. Provide fields such as `logo`, `title`, `text`, `supportUrl`, `brandColor`, `language` (see existing examples).
+3. Provide fields such as `logo`, `title`, `text`, `supportUrl`, `brandColor`, `language`, and optionally `maintenanceWindowsUtc` / `serverLabel` (see **Recurring maintenance windows (UTC)** above).
 4. Add logo files under `public/assets/logos/` if needed and reference them with paths like `/assets/logos/your-logo.svg`.
 5. Rebuild (`npm run build`) and deploy `dist/`.
 

@@ -2,7 +2,14 @@
  * Hostname-keyed branding for the maintenance page.
  * Keys are DNS suffixes (no protocol, no port). Any subdomain prefix is ignored: the
  * longest matching CONFIG key wins (e.g. pixeldemon.lima-city.de → lima-city.de).
+ *
+ * Optional **maintenanceWindowsUtc**: weekly slots in UTC. `weekdayUtc` uses the same
+ * numbering as `Date.getUTCDay()` — **0 = Sunday … 6 = Saturday**. `start` / `end` are
+ * `"HH:mm"` on that UTC calendar day; `end` must be after `start`. No overnight window
+ * in one entry — split at midnight into two entries (see README).
  */
+
+/** @typedef {{ weekdayUtc: number, start: string, end: string }} MaintenanceWindowUtc */
 
 const EXAMPLE_EN = {
   logo: "/assets/logos/example.svg",
@@ -11,6 +18,8 @@ const EXAMPLE_EN = {
   supportUrl: "https://status.example.com",
   brandColor: "#0055ff",
   language: "en",
+  serverLabel: "Example (demo)",
+  maintenanceWindowsUtc: [{ weekdayUtc: 4, start: "11:20", end: "11:40" }],
 };
 
 const EXAMPLE_DE = {
@@ -21,6 +30,8 @@ const EXAMPLE_DE = {
   supportUrl: "https://status.example.com/de",
   brandColor: "#0d9488",
   language: "de",
+  serverLabel: "Beispiel (Demo)",
+  maintenanceWindowsUtc: [{ weekdayUtc: 4, start: "11:20", end: "11:40" }],
 };
 
 /** Test / demo: applies to lima-city.de and any subdomain (e.g. user123.lima-city.de). */
@@ -31,9 +42,11 @@ const LIMA_CITY = {
   supportUrl: "https://www.lima-city.de",
   brandColor: "#1a56a8",
   language: "de",
+  serverLabel: "Lima-City (Test)",
+  maintenanceWindowsUtc: [{ weekdayUtc: 4, start: "11:20", end: "11:40" }],
 };
 
-/** @type {Record<string, typeof EXAMPLE_EN>} */
+/** @type {Record<string, object>} */
 export const CONFIG = {
   default: {
     logo: "/assets/logos/default.svg",
@@ -42,6 +55,7 @@ export const CONFIG = {
     supportUrl: "",
     brandColor: "#334155",
     language: "en",
+    maintenanceWindowsUtc: [],
   },
 
   // Example production-style hosts (replace with your real domains in deployment).
