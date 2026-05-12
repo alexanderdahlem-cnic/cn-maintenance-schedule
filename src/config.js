@@ -1,6 +1,7 @@
 /**
  * Hostname-keyed branding for the maintenance page.
- * Keys use exact hostnames (no protocol, no port). "www." is normalized in getConfig().
+ * Keys are DNS suffixes (no protocol, no port). Any subdomain prefix is ignored: the
+ * longest matching CONFIG key wins (e.g. pixeldemon.lima-city.de → lima-city.de).
  */
 
 const EXAMPLE_EN = {
@@ -22,6 +23,16 @@ const EXAMPLE_DE = {
   language: "de",
 };
 
+/** Test / demo: applies to lima-city.de and any subdomain (e.g. user123.lima-city.de). */
+const LIMA_CITY = {
+  logo: "/assets/logos/lima-city-logo.svg",
+  title: "Wartungsmodus (Test)",
+  text: "Diese Demo-Konfiguration ist für lima-city.de hinterlegt. Inhalt nur zu Testzwecken.",
+  supportUrl: "https://www.lima-city.de",
+  brandColor: "#1a56a8",
+  language: "de",
+};
+
 /** @type {Record<string, typeof EXAMPLE_EN>} */
 export const CONFIG = {
   default: {
@@ -40,31 +51,49 @@ export const CONFIG = {
   // Local testing via /etc/hosts (see README).
   "example.test": EXAMPLE_EN,
   "example-de.test": EXAMPLE_DE,
+
+  // Test branding for Lima-City and all its subdomains.
+  "lima-city.de": LIMA_CITY,
 };
 
+const DEFAULT_KEY = "default";
+
 /**
- * Normalize hostname for lookup: strip leading "www." once.
- * @param {string} hostname
- * @returns {string}
+ * Longest-suffix-first hostnames to try against CONFIG (minimum two labels, except single-label hosts).
+ * foo.bar.example.com → ["foo.bar.example.com", "bar.example.com", "example.com"]
+ * @param {string} hostname from window.location.hostname
+ * @returns {string[]}
  */
-function normalizeHostname(hostname) {
+function hostnameSuffixCandidates(hostname) {
   const h = String(hostname || "").trim().toLowerCase();
-  if (h.startsWith("www.")) {
-    return h.slice(4);
+  const parts = h.split(".").filter(Boolean);
+  if (parts.length === 0) {
+    return [];
   }
-  return h;
+  if (parts.length === 1) {
+    return [parts[0]];
+  }
+  const out = [];
+  for (let i = 0; i <= parts.length - 2; i++) {
+    out.push(parts.slice(i).join("."));
+  }
+  return out;
 }
 
 /**
- * Resolve config for the current host. Exact match after optional www. strip; else default.
+ * Resolve config: first CONFIG key that matches a suffix of the hostname (longest match wins), else default.
  * @param {string} hostname from window.location.hostname
  * @returns {typeof CONFIG.default}
  */
 export function getConfig(hostname) {
-  const key = normalizeHostname(hostname);
-  const entry = CONFIG[key];
-  if (entry && typeof entry === "object") {
-    return { ...CONFIG.default, ...entry };
+  for (const key of hostnameSuffixCandidates(hostname)) {
+    if (key === DEFAULT_KEY) {
+      continue;
+    }
+    const entry = CONFIG[key];
+    if (entry && typeof entry === "object") {
+      return { ...CONFIG.default, ...entry };
+    }
   }
   return { ...CONFIG.default };
 }

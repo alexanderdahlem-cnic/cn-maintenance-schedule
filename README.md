@@ -1,5 +1,7 @@
 # Static maintenance page
 
+**Repository:** [github.com/alexanderdahlem-cnic/cn-maintenance-schedule](https://github.com/alexanderdahlem-cnic/cn-maintenance-schedule)
+
 A minimal, production-ready **static** maintenance site built with **Vite**, **vanilla JavaScript**, **HTML**, and **CSS**. There is **no backend**, **no framework**, and **no React/Vue**. The built output is plain files in `dist/` suitable for any static host or CDN (including maintenance-mode or failover routing).
 
 ## Purpose
@@ -12,7 +14,7 @@ Serve a branded “under maintenance” experience per hostname (multi-domain / 
 | --- | --- |
 | `index.html` | Minimal **bootloader**: charset, viewport, meta, empty `#app`, Vite entry script only. **No maintenance copy** in HTML. |
 | `src/main.js` | Reads `window.location.hostname`, resolves config, sets `lang` and `--brand-color`, mounts UI into `#app`. |
-| `src/config.js` | Central **CONFIG** map and `getConfig(hostname)` (exact match + optional `www.` normalization + **default** fallback). |
+| `src/config.js` | Central **CONFIG** map and `getConfig(hostname)` (**suffix match**: any subdomain of a configured domain uses that entry; **`default`** fallback). |
 | `src/maintenance.template.html` | **Layout template**: semantic markup and static copy (e.g. footer). Easier to edit than building nodes only in JS. |
 | `src/renderMaintenancePage.js` | Parses the template, then fills **`data-slot`** regions from config (logo, title, text, support link) via DOM APIs. |
 | `src/style.css` | Layout, tokens, responsive and `prefers-color-scheme` styling. |
@@ -28,11 +30,11 @@ Open **`src/maintenance.template.html`**. Keep the root **`.maintenance`** eleme
 
 ### Hostname-based branding
 
-At runtime, `main.js` uses `window.location.hostname` (no server logic). `getConfig()` picks the entry whose key equals the hostname after stripping a single leading `www.` (e.g. `www.example.com` → lookup `example.com`).
+At runtime, `main.js` uses `window.location.hostname` (no server logic). `getConfig()` walks **suffixes** of the host (longest first): e.g. `www.foo.example.com` tries `www.foo.example.com`, then `foo.example.com`, then `example.com` — the first key found in **`CONFIG`** wins. Any number of subdomain labels in front of your registered domain are ignored for matching purposes.
 
 ### Fallback config
 
-If no key matches, **`CONFIG.default`** is used (spread into a fresh object so callers never mutate the canonical default).
+If no **suffix** matches any key (other than merging into `default`), **`CONFIG.default`** is used (spread into a fresh object so callers never mutate the canonical default).
 
 ## Run locally with Docker (development)
 
@@ -87,7 +89,7 @@ Visitors hit **`something.github.io`**, not your product domain. Add that hostna
 "your-org.github.io": { /* … */ },
 ```
 
-Use the exact hostname shown in the browser (with or without project path—only the **hostname** is used for lookup).
+Use the **suffix** you configure (e.g. `example.com` covers `app.example.com`). For GitHub Pages preview hosts, the full hostname may still be the right key if you do not share a longer suffix with other sites.
 
 ### Private repositories
 
@@ -132,9 +134,9 @@ Avoid **`//`** in paths (e.g. not `pages.github.io//repo`). **`script src`** and
 <div id="app"></div>
 <script>
   window.__MAINTENANCE_PUBLIC_BASE__ =
-    "https://YOUR_ORG.github.io/gweb-maintainance-static";
+    "https://alexanderdahlem-cnic.github.io/cn-maintenance-schedule";
 </script>
-<script src="https://YOUR_ORG.github.io/gweb-maintainance-static/maintenance-embed.js"></script>
+<script src="https://alexanderdahlem-cnic.github.io/cn-maintenance-schedule/maintenance-embed.js"></script>
 ```
 
 #### Preview URL only (`https://<id>.pages.github.io/…`)
@@ -147,9 +149,9 @@ Example shape:
 <div id="app"></div>
 <script>
   window.__MAINTENANCE_PUBLIC_BASE__ =
-    "https://YOUR_PREVIEW.pages.github.io/gweb-maintainance-static";
+    "https://YOUR_PREVIEW.pages.github.io/cn-maintenance-schedule";
 </script>
-<script src="https://YOUR_PREVIEW.pages.github.io/gweb-maintainance-static/maintenance-embed.js"></script>
+<script src="https://YOUR_PREVIEW.pages.github.io/cn-maintenance-schedule/maintenance-embed.js"></script>
 ```
 
 Add **`window.location.hostname`** for this preview (e.g. **`YOUR_PREVIEW.pages.github.io`**) to **`CONFIG`** in **`src/config.js`** if you want branding other than **`CONFIG.default`** (preview hostnames can change when GitHub changes the deployment URL).
@@ -161,14 +163,14 @@ Add **`window.location.hostname`** for this preview (e.g. **`YOUR_PREVIEW.pages.
 **`public/test-alert.js`** is copied to **`dist/test-alert.js`** on **`npm run build`** (no bundling). It only runs **`alert(...)`** so you can verify cross-origin `<script src>` from your Pages base URL, e.g.:
 
 ```html
-<script src="https://YOUR_PREVIEW.pages.github.io/gweb-maintainance-static/test-alert.js"></script>
+<script src="https://YOUR_PREVIEW.pages.github.io/cn-maintenance-schedule/test-alert.js"></script>
 ```
 
 Remove this script tag (and optionally delete **`public/test-alert.js`**) when testing is done.
 
 Optional: **`window.__MAINTENANCE_ROOT_ID__`** (default **`app`**) if your container id differs.
 
-Add **`"pixeldemon.lima-city.de"`** (or your real host) to **`CONFIG`** in `src/config.js` so branding matches the Lima page hostname.
+Subdomains of a configured suffix (e.g. **`pixeldemon.lima-city.de`** under **`lima-city.de`**) use the same **`CONFIG`** entry automatically.
 
 **Alternatives**
 
@@ -178,16 +180,16 @@ Add **`"pixeldemon.lima-city.de"`** (or your real host) to **`CONFIG`** in `src/
 ## Add a new domain config
 
 1. Open `src/config.js`.
-2. Add a key **exactly matching** the hostname visitors use (e.g. `"app.mycompany.com"`).
+2. Add a key for the **registrable suffix** you want to brand (e.g. `"mycompany.com"`). That entry applies to **`mycompany.com`**, **`www.mycompany.com`**, **`app.mycompany.com`**, **`a.b.mycompany.com`**, etc. (longest matching key wins if you add overlapping suffixes).
 3. Provide fields such as `logo`, `title`, `text`, `supportUrl`, `brandColor`, `language` (see existing examples).
 4. Add logo files under `public/assets/logos/` if needed and reference them with paths like `/assets/logos/your-logo.svg`.
 5. Rebuild (`npm run build`) and deploy `dist/`.
 
-Remember: **`www.`** is stripped before lookup, so you usually only need the bare domain key unless you use a hostname that does not follow that pattern.
+**Caveat:** Shared public suffixes (e.g. **`github.io`**) match many unrelated hosts. Prefer a **full hostname** key for those (e.g. **`your-user.github.io`**) instead of **`github.io`** alone.
 
 ## Test domains locally via `/etc/hosts`
 
-Point test hostnames to your machine so `window.location.hostname` matches your config keys:
+Point test hostnames to your machine; suffix matching applies (e.g. **`foo.example.test`** uses the **`example.test`** entry if configured):
 
 ```
 127.0.0.1 example.test

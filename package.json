@@ -1,8 +1,12 @@
 {
-  "name": "static-maintenance-page",
+  "name": "cn-maintenance-schedule",
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexanderdahlem-cnic/cn-maintenance-schedule.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
