@@ -39,9 +39,7 @@ const LIMA_CITY = {
   logo: "/assets/logos/lima-city-logo.svg",
   title: "Wartungsmodus (Test)",
   text: "Diese Demo-Konfiguration ist für lima-city.de hinterlegt. Inhalt nur zu Testzwecken.",
-  supportUrl: "https://www.lima-city.de",
   brandColor: "#1a56a8",
-  language: "de",
   serverLabel: "Lima-City (Test)",
   maintenanceWindowsUtc: [{ weekdayUtc: 4, start: "11:20", end: "11:40" }],
 };
