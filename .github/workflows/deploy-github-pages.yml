@@ -60,3 +60,8 @@ jobs:
 
       - uses: actions/deploy-pages@v5
         id: deployment
+
+      - name: Pages deployment URL
+        run: |
+          echo "Open this URL for the current deploy (use it for embed src until canonical github.io is available):"
+          echo "${{ steps.deployment.outputs.page_url }}"

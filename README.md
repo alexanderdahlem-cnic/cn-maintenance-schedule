@@ -122,23 +122,53 @@ Browsers enforce **CORS** for **ES modules** loaded cross-origin. GitHub Pages d
 
 **Use the embed bundle instead**
 
-After **`npm run build && npm run build:embed`** (the GitHub Action runs both), **`dist/maintenance-embed.js`** is a **classic script** (no `type="module"`) with **CSS inlined**. Load **that single file** from your canonical Pages URL (avoid **`//`** double slashes and prefer **`https://…github.io/<repo>/`** over transient **`*.pages.github.io`** preview hosts).
+After **`npm run build && npm run build:embed`** (the GitHub Action runs both), **`dist/maintenance-embed.js`** is a **classic script** (no `type="module"`) with **CSS inlined**. Load **that single file** from the URL where GitHub actually hosts your **`dist/`** output.
 
-Example on `https://pixeldemon.lima-city.de`:
+#### Canonical URL (`https://<org>.github.io/<repo>/`)
+
+Avoid **`//`** in paths (e.g. not `pages.github.io//repo`). **`script src`** and **`window.__MAINTENANCE_PUBLIC_BASE__`** must use the **same** origin and repository path:
 
 ```html
 <div id="app"></div>
 <script>
-  // Where logos /public files live (no trailing slash). Required when the page hostname !== GitHub Pages.
   window.__MAINTENANCE_PUBLIC_BASE__ =
     "https://YOUR_ORG.github.io/gweb-maintainance-static";
 </script>
 <script src="https://YOUR_ORG.github.io/gweb-maintainance-static/maintenance-embed.js"></script>
 ```
 
+#### Preview URL only (`https://<id>.pages.github.io/…`)
+
+If only the **Actions deployment / preview** URL exists for now, use **that** hostname (and path, if any) for **both** the script tag and **`__MAINTENANCE_PUBLIC_BASE__`** — not the future canonical URL. Copy it from the workflow run (**deployment** summary / job output) or open the deployed site and copy the origin + path from the address bar (single slashes only).
+
+Example shape:
+
+```html
+<div id="app"></div>
+<script>
+  window.__MAINTENANCE_PUBLIC_BASE__ =
+    "https://YOUR_PREVIEW.pages.github.io/gweb-maintainance-static";
+</script>
+<script src="https://YOUR_PREVIEW.pages.github.io/gweb-maintainance-static/maintenance-embed.js"></script>
+```
+
+Add **`window.location.hostname`** for this preview (e.g. **`YOUR_PREVIEW.pages.github.io`**) to **`CONFIG`** in **`src/config.js`** if you want branding other than **`CONFIG.default`** (preview hostnames can change when GitHub changes the deployment URL).
+
+**Do not** use **`fetch()`** in the browser console to load `maintenance-embed.js` from another origin — GitHub Pages will not send **CORS** headers for that request; **`fetch` failing does not mean** the embed `<script src>` fails.
+
+#### Smoke test: `test-alert.js`
+
+**`public/test-alert.js`** is copied to **`dist/test-alert.js`** on **`npm run build`** (no bundling). It only runs **`alert(...)`** so you can verify cross-origin `<script src>` from your Pages base URL, e.g.:
+
+```html
+<script src="https://YOUR_PREVIEW.pages.github.io/gweb-maintainance-static/test-alert.js"></script>
+```
+
+Remove this script tag (and optionally delete **`public/test-alert.js`**) when testing is done.
+
 Optional: **`window.__MAINTENANCE_ROOT_ID__`** (default **`app`**) if your container id differs.
 
-Add **`"pixeldemon.lima-city.de"`** (or your real host) to **`CONFIG`** in `src/config.js` so branding matches that hostname.
+Add **`"pixeldemon.lima-city.de"`** (or your real host) to **`CONFIG`** in `src/config.js` so branding matches the Lima page hostname.
 
 **Alternatives**
 
