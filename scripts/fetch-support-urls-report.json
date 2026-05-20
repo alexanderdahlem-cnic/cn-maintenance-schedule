@@ -1,0 +1,88 @@
+{
+  "brandshelter.com": {
+    "supportUrl": "https://www.brandshelter.com/contact/",
+    "type": "contact"
+  },
+  "centralnicregistry.com": {
+    "supportUrl": "https://centralnicregistry.com/contact/",
+    "type": "contact"
+  },
+  "centralnicreseller.com": {
+    "supportUrl": "https://www.centralnicreseller.com/contact/",
+    "type": "contact"
+  },
+  "kb.centralnicreseller.com": {
+    "supportUrl": "https://centralnicreseller.com/en/contact",
+    "type": "support"
+  },
+  "upload.teaminternet.com": {
+    "supportUrl": "https://teaminternet.com/contact/",
+    "type": "contact",
+    "note": "No link on upload host; parent brand contact"
+  },
+  "voluum.com": {
+    "supportUrl": "https://voluum.com/contact/",
+    "type": "contact"
+  },
+  "safebrands.fr": {
+    "supportUrl": "https://www.brandshelter.com/fr/contact",
+    "type": "contact"
+  },
+  "teaminternet.com": {
+    "supportUrl": "https://teaminternet.com/contact/",
+    "type": "contact"
+  },
+  "dot.saarland": {
+    "supportUrl": "https://nic.saarland/de/kontakt",
+    "type": "contact"
+  },
+  "nic.saarland": {
+    "supportUrl": "https://nic.saarland/de/kontakt",
+    "type": "contact"
+  },
+  "dotbrandsolutions.com": {
+    "supportUrl": "https://www.brandshelter.com/contact/",
+    "type": "contact"
+  },
+  "blog.moniker.com": {
+    "supportUrl": "https://www.moniker.com/contact",
+    "type": "contact"
+  },
+  "registry.co": {
+    "supportUrl": "https://support.registry.co/",
+    "type": "support"
+  },
+  "register.bh": {
+    "supportUrl": "https://register.bh/contact/",
+    "type": "contact"
+  },
+  "domains.bh": {
+    "supportUrl": "https://domains.bh/contact/",
+    "type": "contact"
+  },
+  "dominic.de": {
+    "supportUrl": "https://dominic.de/contact#contactSupport",
+    "type": "support"
+  },
+  "everythingbeginswitha.name": {
+    "supportUrl": "https://teaminternet.com/contact/",
+    "type": "contact"
+  },
+  "key-systems.net": {
+    "supportUrl": "https://www.key-systems.net/kontakt/support/",
+    "type": "support"
+  },
+  "ipm.domains": {
+    "supportUrl": "https://www.brandshelter.com/contact/",
+    "type": "contact"
+  },
+  "whoistrustee.com": {
+    "supportUrl": "https://whoistrustee.com/contact",
+    "type": "contact"
+  },
+  "ntld.icu": {
+    "supportUrl": "https://teaminternet.com/contact/",
+    "type": "contact",
+    "note": "Site only had mailto:hello@teaminternet.com; used brand contact page"
+  }
+}

@@ -5,18 +5,23 @@
 -->
 <div class="maintenance" role="main">
   <div class="maintenance__card">
-    <div class="maintenance__logo-wrap" data-slot="logo-wrap"></div>
+    <div class="maintenance__card-header">
+      <div class="maintenance__logo-wrap" data-slot="logo-wrap"></div>
+      <p class="maintenance__brand" data-slot="name"></p>
+    </div>
 
-    <h1 class="maintenance__title" data-slot="title"></h1>
+    <div class="maintenance__card-body">
+      <h1 class="maintenance__title" data-slot="title"></h1>
 
-    <p class="maintenance__text" data-slot="text"></p>
+      <p class="maintenance__text" data-slot="text"></p>
 
-    <section class="maintenance__schedule" data-slot="schedule" aria-labelledby="maintenance-schedule-heading"></section>
+      <section class="maintenance__schedule" data-slot="schedule" aria-labelledby="maintenance-schedule-heading"></section>
 
-    <div class="maintenance__actions" data-slot="actions"></div>
+      <div class="maintenance__actions" data-slot="actions"></div>
 
-    <footer class="maintenance__footer">
-      <p class="maintenance__footer-text">Thank you for your patience.</p>
-    </footer>
+      <footer class="maintenance__footer">
+        <p class="maintenance__footer-text">Thank you for your patience.</p>
+      </footer>
+    </div>
   </div>
 </div>

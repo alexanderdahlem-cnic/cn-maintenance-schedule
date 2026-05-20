@@ -14,6 +14,46 @@ import {
 } from "./maintenanceSchedule.js";
 
 /**
+ * @param {string} hex background (#rrggbb)
+ * @returns {string} #0f172a or #ffffff
+ */
+function readableTextOnBackground(hex) {
+  const h = String(hex || "").replace(/^#/, "");
+  if (!/^[0-9a-f]{6}$/i.test(h)) {
+    return "#ffffff";
+  }
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000 >= 150 ? "#0f172a" : "#ffffff";
+}
+
+/**
+ * Button label for the support/contact link.
+ * @param {string} supportUrl
+ * @param {string | undefined} lang
+ */
+function supportLinkLabel(supportUrl, lang) {
+  const u = String(supportUrl || "").toLowerCase();
+  const code = String(lang || "en")
+    .trim()
+    .toLowerCase()
+    .slice(0, 2);
+  const isSupport =
+    /\/support\b|support\.|\/help\b|help\.|helpcentre|help-center|help-centre|#contactsupport/i.test(
+      u,
+    );
+
+  if (code === "fr") {
+    return isSupport ? "Support" : "Nous contacter";
+  }
+  if (code === "de" || /\/kontakt\b/.test(u)) {
+    return isSupport ? "Support" : "Kontakt";
+  }
+  return isSupport ? "Support" : "Contact us";
+}
+
+/**
  * @param {string | undefined} lang
  */
 function scheduleStrings(lang) {
@@ -64,15 +104,6 @@ function fillScheduleSection(section, config) {
   heading.id = "maintenance-schedule-heading";
   heading.textContent = copy.heading;
   section.appendChild(heading);
-
-  const serverLabel =
-    config.serverLabel != null ? String(config.serverLabel).trim() : "";
-  if (serverLabel) {
-    const meta = document.createElement("p");
-    meta.className = "maintenance__schedule-meta";
-    meta.textContent = serverLabel;
-    section.appendChild(meta);
-  }
 
   const recurring = document.createElement("p");
   recurring.className = "maintenance__schedule-recurring";
@@ -140,6 +171,8 @@ export function renderMaintenancePage(config) {
 
   const wrapper = document.importNode(tplRoot, true);
 
+  const brandName = config.name != null ? String(config.name).trim() : "";
+
   const logoWrap = wrapper.querySelector('[data-slot="logo-wrap"]');
   const logoSrc = config.logo != null ? String(config.logo).trim() : "";
   if (logoWrap) {
@@ -147,7 +180,7 @@ export function renderMaintenancePage(config) {
       const img = document.createElement("img");
       img.className = "maintenance__logo";
       img.src = resolvePublicUrl(logoSrc);
-      img.alt = "";
+      img.alt = brandName;
       img.width = 160;
       img.height = 48;
       img.decoding = "async";
@@ -155,6 +188,20 @@ export function renderMaintenancePage(config) {
     } else {
       logoWrap.remove();
     }
+  }
+
+  const nameEl = wrapper.querySelector('[data-slot="name"]');
+  if (nameEl) {
+    if (brandName) {
+      nameEl.textContent = brandName;
+    } else {
+      nameEl.remove();
+    }
+  }
+
+  const cardHeader = wrapper.querySelector(".maintenance__card-header");
+  if (cardHeader && cardHeader.children.length === 0) {
+    cardHeader.remove();
   }
 
   const titleEl = wrapper.querySelector('[data-slot="title"]');
@@ -191,7 +238,16 @@ export function renderMaintenancePage(config) {
       a.className = "maintenance__link";
       a.href = supportUrl;
       a.rel = "noopener noreferrer";
-      a.textContent = "Status & updates";
+      a.textContent = supportLinkLabel(supportUrl, config.language);
+      const btnHex =
+        config.buttonColor != null && String(config.buttonColor).trim()
+          ? String(config.buttonColor).trim()
+          : config.brandColor != null && String(config.brandColor).trim()
+            ? String(config.brandColor).trim()
+            : "";
+      if (btnHex) {
+        a.style.color = readableTextOnBackground(btnHex);
+      }
       actionsEl.appendChild(a);
     } else {
       actionsEl.remove();

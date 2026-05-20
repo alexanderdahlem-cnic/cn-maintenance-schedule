@@ -7,6 +7,12 @@
   --shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
   --radius: 12px;
   --space: clamp(1rem, 4vw, 2rem);
+  --page-bg-default: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--brand-color) 12%, var(--surface)) 0%,
+    var(--surface) 45%,
+    color-mix(in srgb, var(--brand-color) 8%, var(--surface)) 100%
+  );
   font-family:
     system-ui,
     -apple-system,
@@ -19,13 +25,35 @@
   -webkit-font-smoothing: antialiased;
 }
 
+/* System dark mode only when no per-domain appearance is set. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-appearance]) {
     --surface: #1e293b;
     --text: #f8fafc;
     --text-muted: #94a3b8;
     --shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
   }
+}
+
+/* Per-domain override: light page (ignores OS dark mode). */
+html[data-appearance="light"] {
+  color-scheme: light;
+  --surface: #ffffff;
+  --text: #0f172a;
+  --text-muted: #475569;
+  --shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+}
+
+/* Per-domain override: light page; dark band on card header only (logo + name). */
+html[data-appearance="dark"] {
+  color-scheme: light;
+  --surface: #ffffff;
+  --text: #0f172a;
+  --text-muted: #475569;
+  --shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+  --card-header-bg: #1e293b;
+  --card-header-text: #f8fafc;
+  --card-header-text-muted: #cbd5e1;
 }
 
 *,
@@ -39,12 +67,56 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   color: var(--text);
-  background: linear-gradient(
+  background: var(--page-bg, var(--page-bg-default));
+}
+
+html[data-appearance="light"],
+html[data-appearance="dark"] {
+  --page-bg: linear-gradient(
     160deg,
-    color-mix(in srgb, var(--brand-color) 12%, var(--surface)) 0%,
-    var(--surface) 45%,
-    color-mix(in srgb, var(--brand-color) 8%, var(--surface)) 100%
+    color-mix(in srgb, var(--brand-color) 10%, #f8fafc) 0%,
+    #ffffff 50%,
+    color-mix(in srgb, var(--brand-color) 6%, #ffffff) 100%
   );
+}
+
+.domain-preview {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding: 0.5rem var(--space);
+  background: color-mix(in srgb, var(--surface) 92%, var(--brand-color) 8%);
+  border-bottom: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+  font-size: 0.8125rem;
+}
+
+.domain-preview__label {
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.domain-preview__select {
+  flex: 1;
+  min-width: 12rem;
+  max-width: 28rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+
+body.has-domain-preview #app {
+  padding-top: calc(var(--space) + 2.75rem);
 }
 
 #app {
@@ -64,21 +136,58 @@ body {
 .maintenance__card {
   background: var(--surface);
   border-radius: var(--radius);
-  padding: clamp(1.5rem, 5vw, 2.25rem);
+  padding: 0;
+  overflow: hidden;
   box-shadow: var(--shadow);
   border: 1px solid color-mix(in srgb, var(--brand-color) 25%, transparent);
 }
 
+.maintenance__card-header {
+  padding: clamp(1.5rem, 5vw, 2.25rem) clamp(1.5rem, 5vw, 2.25rem) 1rem;
+}
+
+html[data-appearance="dark"] .maintenance__card-header {
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--brand-color) 28%, var(--card-header-bg)) 0%,
+    var(--card-header-bg) 55%
+  );
+}
+
+.maintenance__card-body {
+  padding: 0 clamp(1.5rem, 5vw, 2.25rem) clamp(1.5rem, 5vw, 2.25rem);
+}
+
+html[data-appearance="dark"] .maintenance__card-body {
+  padding-top: 1.5rem;
+}
+
 .maintenance__logo-wrap {
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.75rem;
   display: flex;
   justify-content: center;
 }
 
 .maintenance__logo {
-  max-width: 100%;
+  max-width: min(100%, 220px);
+  max-height: 4rem;
+  width: auto;
   height: auto;
   display: block;
+  object-fit: contain;
+}
+
+.maintenance__brand {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+html[data-appearance="dark"] .maintenance__brand {
+  color: var(--card-header-text-muted);
 }
 
 .maintenance__title {
@@ -156,7 +265,7 @@ body {
   font-size: 0.9375rem;
   font-weight: 600;
   color: var(--surface);
-  background: var(--brand-color);
+  background: var(--button-color, var(--brand-color));
   border-radius: 8px;
   text-decoration: none;
   transition:
@@ -170,14 +279,19 @@ body {
 }
 
 .maintenance__link:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--brand-color) 55%, white);
+  outline: 3px solid color-mix(in srgb, var(--button-color, var(--brand-color)) 55%, white);
   outline-offset: 2px;
 }
 
 @media (prefers-color-scheme: dark) {
-  .maintenance__link {
+  :root:not([data-appearance]) .maintenance__link {
     color: #0f172a;
   }
+}
+
+html[data-appearance="light"] .maintenance__link,
+html[data-appearance="dark"] .maintenance__link {
+  color: #ffffff;
 }
 
 .maintenance__footer {

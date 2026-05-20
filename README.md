@@ -14,7 +14,8 @@ Serve a branded “under maintenance” experience per hostname (multi-domain / 
 | --- | --- |
 | `index.html` | Minimal **bootloader**: charset, viewport, meta, empty `#app`, Vite entry script only. **No maintenance copy** in HTML. |
 | `src/main.js` | Reads `window.location.hostname`, resolves config, sets `lang` and `--brand-color`, mounts UI into `#app`. |
-| `src/config.js` | Central **CONFIG** map and `getConfig(hostname)` (**suffix match**: any subdomain of a configured domain uses that entry; **`default`** fallback). |
+| `src/config.js` | **`CONFIG`**: hostname suffix → domain profile; optional **`serverId`** links a domain to a row in **`SERVERS`**. |
+| `src/servers.js` | **`SERVERS`**: stable per-server data (**`maintenanceWindowsUtc`**, …) shared by all domains using that `serverId`. |
 | `src/maintenance.template.html` | **Layout template**: semantic markup and static copy (e.g. footer). Easier to edit than building nodes only in JS. |
 | `src/renderMaintenancePage.js` | Parses the template, fills **`data-slot`** regions, optional **schedule** block (UTC + local). |
 | `src/maintenanceSchedule.js` | Weekly **UTC** windows: next occurrence, in-progress detection, `Intl` formatting. |
@@ -23,7 +24,7 @@ Serve a branded “under maintenance” experience per hostname (multi-domain / 
 
 ### Why `index.html` is intentionally content-free
 
-The shipped HTML entry stays a tiny shell so CDNs and static hosts always load the same bootloader. **Structure and static maintenance copy** (footer, element order, extra landmarks) live in **`src/maintenance.template.html`**, which is bundled and rendered at runtime. **Per-host branding** (`title`, `text`, `logo`, etc.) stays in **`config.js`**. That split keeps layout easy to edit in real HTML while `index.html` never diverges per domain.
+The shipped HTML entry stays a tiny shell so CDNs and static hosts always load the same bootloader. **Structure and static maintenance copy** (footer, element order, extra landmarks) live in **`src/maintenance.template.html`**, which is bundled and rendered at runtime. **Per-host branding** (`title`, `text`, `logo`, etc.) lives in **`config.js`** (and optional **`serverId`** → **`servers.js`** for schedules). That split keeps layout easy to edit in real HTML while `index.html` never diverges per domain.
 
 ### Editing the maintenance HTML template
 
@@ -121,7 +122,7 @@ Optional: test an absolute subpath with **`VITE_BASE=/your-repo-name/`** if you 
 
 **Why `<script type="module">` from GitHub Pages fails elsewhere**
 
-Browsers enforce **CORS** for **ES modules** loaded cross-origin. GitHub Pages does not send `Access-Control-Allow-Origin` for your lima-city (or other) domain, so **`index-*.js`** from **`dist/assets/`** cannot be loaded from `<script type="module" src="…">` on another host. Separate `<link>` CSS hits the same limitation.
+Browsers enforce **CORS** for **ES modules** loaded cross-origin. GitHub Pages does not send `Access-Control-Allow-Origin` for your product domain, so **`index-*.js`** from **`dist/assets/`** cannot be loaded from `<script type="module" src="…">` on another host. Separate `<link>` CSS hits the same limitation.
 
 **Use the embed bundle instead**
 
@@ -159,33 +160,34 @@ Add **`window.location.hostname`** for this preview (e.g. **`YOUR_PREVIEW.pages.
 
 **Do not** use **`fetch()`** in the browser console to load `maintenance-embed.js` from another origin — GitHub Pages will not send **CORS** headers for that request; **`fetch` failing does not mean** the embed `<script src>` fails.
 
-#### Smoke test: `test-alert.js`
-
-**`public/test-alert.js`** is copied to **`dist/test-alert.js`** on **`npm run build`** (no bundling). It only runs **`alert(...)`** so you can verify cross-origin `<script src>` from your Pages base URL, e.g.:
-
-```html
-<script src="https://YOUR_PREVIEW.pages.github.io/cn-maintenance-schedule/test-alert.js"></script>
-```
-
-Remove this script tag (and optionally delete **`public/test-alert.js`**) when testing is done.
-
 Optional: **`window.__MAINTENANCE_ROOT_ID__`** (default **`app`**) if your container id differs.
 
-Subdomains of a configured suffix (e.g. **`pixeldemon.lima-city.de`** under **`lima-city.de`**) use the same **`CONFIG`** entry automatically.
+Subdomains of a configured suffix (e.g. **`kb.centralnicreseller.com`** under **`centralnicreseller.com`**) use the same **`CONFIG`** entry automatically.
 
 **Alternatives**
 
 - Deploy the full **`dist/`** copy on the same host as the HTML (**same origin** → normal **`index.html`** flow works).
 - Or use an **`<iframe src="https://…github.io/repo/">`** — no script embedding or CORS issues for your module bundle.
 
+## Servers (`src/servers.js`)
+
+Define **`SERVERS`** as a map of **server id → profile**. Put anything domains on the same machine should share here, especially:
+
+- **`maintenanceWindowsUtc`** — weekly UTC windows (same shape as before).
+
+Ids are arbitrary stable strings (e.g. `"gweb-prod-brandshelter-01"`). Unknown **`serverId`** on a domain is ignored for the server layer (you still get domain + default fields only).
+
 ## Recurring maintenance windows (UTC)
 
-Optional per-domain fields in **`src/config.js`** (merged with `default`):
+Windows are defined **on the server** in **`src/servers.js`**, not duplicated per domain. Domains set **`serverId`** in **`src/config.js`** to attach to a server.
+
+Merge order for the resolved page config: **`CONFIG.default` → `SERVERS[serverId]` → domain entry** (domain wins on overlapping keys such as `logo` / `title`).
+
+Fields on the server profile:
 
 - **`maintenanceWindowsUtc`**: array of `{ weekdayUtc, start, end }`.
   - **`weekdayUtc`**: `0` = Sunday … `6` = Saturday (same as **`Date.prototype.getUTCDay()`** in UTC).
   - **`start` / `end`**: `"HH:mm"` 24-hour on that **UTC calendar day**. **`end`** must be after **`start`** on the same day.
-- **`serverLabel`**: optional short line above the schedule (e.g. server name).
 
 The UI lists the recurring rule(s), then either **next downtime** (range in **UTC** plus the same range in the **visitor’s local time**) or **maintenance in progress until** (window end in UTC and local).
 
@@ -195,29 +197,33 @@ The UI lists the recurring rule(s), then either **next downtime** (range in **UT
 
 ## Add a new domain config
 
-1. Open `src/config.js`.
-2. Add a key for the **registrable suffix** you want to brand (e.g. `"mycompany.com"`). That entry applies to **`mycompany.com`**, **`www.mycompany.com`**, **`app.mycompany.com`**, **`a.b.mycompany.com`**, etc. (longest matching key wins if you add overlapping suffixes).
-3. Provide fields such as `logo`, `title`, `text`, `supportUrl`, `brandColor`, `language`, and optionally `maintenanceWindowsUtc` / `serverLabel` (see **Recurring maintenance windows (UTC)** above).
-4. Add logo files under `public/assets/logos/` if needed and reference them with paths like `/assets/logos/your-logo.svg`.
-5. Rebuild (`npm run build`) and deploy `dist/`.
+1. If this domain runs on a **new physical/logical server**, add a profile to **`src/servers.js`** first (stable id + windows + label).
+2. Open `src/config.js`.
+3. Add a key for the **registrable suffix** you want to brand (e.g. `"mycompany.com"`). That entry applies to **`mycompany.com`**, **`www.mycompany.com`**, **`app.mycompany.com`**, **`a.b.mycompany.com`**, etc. (longest matching key wins if you add overlapping suffixes).
+4. Set **`serverId`** to an id defined in **`src/servers.js`** if this domain should use that server’s **`maintenanceWindowsUtc`**. Omit **`serverId`** (or use a server profile with an empty **`maintenanceWindowsUtc`**) when no schedule block is needed.
+5. Set **`name`** (brand label shown under the logo). Optional: **`logo`**, **`brandColor`**, **`language`**, **`appearance`** (`"light"` or `"dark"` — forces page colors to match the live site; ignores OS dark mode when set). Omit **`logo`** / **`brandColor`** to use the defaults from **`CONFIG.default`**. Omit per-domain **`title`** / **`text`** to use default maintenance copy.
+6. Add logo files under `public/assets/logos/` if needed and reference them with paths like `/assets/logos/your-logo.svg`. To refresh logos/colors from live sites: `node scripts/fetch-branding.mjs` (header/nav logos; see **`LOGO_OVERRIDES`** in that script for curated paths) and `node scripts/fetch-button-colors.mjs` (writes `scripts/fetch-button-colors-report.json`).
+7. Rebuild (`npm run build`) and deploy `dist/`.
+
+To **add or change shared windows**, edit **`SERVERS`** in **`src/servers.js`** — all domains with that **`serverId`** update together.
 
 **Caveat:** Shared public suffixes (e.g. **`github.io`**) match many unrelated hosts. Prefer a **full hostname** key for those (e.g. **`your-user.github.io`**) instead of **`github.io`** alone.
 
-## Test domains locally via `/etc/hosts`
+## Domain preview (simulate CONFIG)
 
-Point test hostnames to your machine; suffix matching applies (e.g. **`foo.example.test`** uses the **`example.test`** entry if configured):
+Without changing DNS, preview branding for any key in **`CONFIG`**:
 
-```
-127.0.0.1 example.test
-127.0.0.1 example-de.test
-```
+- **Vite dev** (`npm run dev`, Docker compose): a **Preview domain** bar appears at the top with a select of all configured hostnames.
+- **Production build**: add **`?domainPreview=1`** to the URL (hide in dev with **`?domainPreview=0`**).
 
-Then run Vite (or Docker) and visit:
+Choosing a domain re-renders the page as if `window.location.hostname` were that suffix (same merge as live: default → server → domain).
 
-- `http://example.test:8000`
-- `http://example-de.test:8000`
+## Test domains locally
 
-You should see **different branding** per hostname. Any hostname not listed falls back to **`CONFIG.default`**.
+- **Domain preview** (see above): pick any configured suffix in dev without `/etc/hosts`.
+- **`/etc/hosts`**: point a production hostname at your machine (e.g. `127.0.0.1 brandshelter.com`) and open `http://brandshelter.com:8000` while Vite or Docker is running.
+
+Any hostname not listed in **`CONFIG`** falls back to **`CONFIG.default`**.
 
 ## Scripts
 

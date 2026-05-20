@@ -1,74 +1,273 @@
 /**
  * Hostname-keyed branding for the maintenance page.
  * Keys are DNS suffixes (no protocol, no port). Any subdomain prefix is ignored: the
- * longest matching CONFIG key wins (e.g. pixeldemon.lima-city.de → lima-city.de).
+ * longest matching CONFIG key wins (e.g. kb.example.com → example.com).
  *
- * Optional **maintenanceWindowsUtc**: weekly slots in UTC. `weekdayUtc` uses the same
- * numbering as `Date.getUTCDay()` — **0 = Sunday … 6 = Saturday**. `start` / `end` are
- * `"HH:mm"` on that UTC calendar day; `end` must be after `start`. No overnight window
- * in one entry — split at midnight into two entries (see README).
+ * Domains set **`serverId`** to pull **`maintenanceWindowsUtc`** and other shared fields from
+ * [`servers.js`](./servers.js). Merge order: `default` → server → domain.
+ *
+ * Per-domain fields: **`name`** (visible under logo), optional **`logo`**, **`brandColor`**,
+ * **`language`**, **`appearance`** (`"light"` | `"dark"`). Omit **`logo`** / **`brandColor`** to use
+ * defaults. Omit **`title`** / **`text`** to use default copy. Branding fetch report:
+ * `scripts/fetch-branding-report.json`.
  */
 
-/** @typedef {{ weekdayUtc: number, start: string, end: string }} MaintenanceWindowUtc */
+import { SERVERS } from "./servers.js";
 
-const EXAMPLE_EN = {
-  logo: "/assets/logos/example.svg",
-  title: "We'll be back shortly",
-  text: "Our services are temporarily unavailable while we perform scheduled maintenance.",
-  supportUrl: "https://status.example.com",
-  brandColor: "#0055ff",
-  language: "en",
-  serverLabel: "Example (demo)",
-  maintenanceWindowsUtc: [{ weekdayUtc: 4, start: "11:20", end: "11:40" }],
-};
-
-const EXAMPLE_DE = {
-  logo: "/assets/logos/example-de.svg",
-  title: "Wir sind gleich wieder da",
-  text:
-    "Unsere Dienste sind vorübergehend nicht verfügbar. Wir führen derzeit Wartungsarbeiten durch.",
-  supportUrl: "https://status.example.com/de",
-  brandColor: "#0d9488",
-  language: "de",
-  serverLabel: "Beispiel (Demo)",
-  maintenanceWindowsUtc: [{ weekdayUtc: 4, start: "11:20", end: "11:40" }],
-};
-
-/** Test / demo: applies to lima-city.de and any subdomain (e.g. user123.lima-city.de). */
-const LIMA_CITY = {
-  logo: "/assets/logos/lima-city-logo.svg",
-  title: "Scheduled maintanances",
-  text: "This demo configuration is for lima-city.de. Contents are for testing purposes only",
-  brandColor: "#1a56a8",
-  serverLabel: "Lima-City (Test)",
-  maintenanceWindowsUtc: [{ weekdayUtc: 4, start: "11:20", end: "11:40" }],
-};
+/**
+ * @param {object} opts
+ * @param {string} opts.serverId
+ * @param {string} opts.name
+ * @param {string} [opts.logo]
+ * @param {string} [opts.brandColor]
+ * @param {string} [opts.language]
+ * @param {"light" | "dark"} [opts.appearance]
+ * @param {string} [opts.supportUrl]
+ * @param {string} [opts.buttonColor]
+ */
+function domain(opts) {
+  const entry = {
+    serverId: opts.serverId,
+    name: opts.name,
+  };
+  if (opts.logo) entry.logo = opts.logo;
+  if (opts.brandColor) entry.brandColor = opts.brandColor;
+  if (opts.buttonColor) entry.buttonColor = opts.buttonColor;
+  if (opts.language) entry.language = opts.language;
+  if (opts.appearance) entry.appearance = opts.appearance;
+  if (opts.supportUrl) entry.supportUrl = opts.supportUrl;
+  return entry;
+}
 
 /** @type {Record<string, object>} */
 export const CONFIG = {
   default: {
     logo: "/assets/logos/default.svg",
-    title: "We'll be back soon",
-    text: "This site is temporarily unavailable. Please try again in a few minutes.",
+    title: "Maintenance Notice",
+    text:
+      "This service is undergoing scheduled maintenance. Planned windows are listed below (UTC and your local time). Access will be restored when the maintenance window ends.",
     supportUrl: "",
     brandColor: "#334155",
     language: "en",
     maintenanceWindowsUtc: [],
   },
 
-  // Example production-style hosts (replace with your real domains in deployment).
-  "example.com": EXAMPLE_EN,
-  "example.de": EXAMPLE_DE,
-
-  // Local testing via /etc/hosts (see README).
-  "example.test": EXAMPLE_EN,
-  "example-de.test": EXAMPLE_DE,
-
-  // Test branding for Lima-City and all its subdomains.
-  "lima-city.de": LIMA_CITY,
+  // Production (gweb-prod-*); see scripts/fetch-branding-report.json for fetch status
+  "brandshelter.com": domain({
+    serverId: "gweb-prod-brandshelter-01",
+    name: "BrandShelter",
+    logo: "/assets/logos/brandshelter-com.svg",
+    appearance: "light",
+    supportUrl: "https://www.brandshelter.com/contact/",
+    buttonColor: "#28cda0",
+  }),
+  "centralnicregistry.com": domain({
+    serverId: "gweb-prod-centralnicregistry-01",
+    name: "CentralNic Registry",
+    logo: "/assets/logos/centralnicregistry-com.svg",
+    appearance: "light",
+    supportUrl: "https://centralnicregistry.com/contact/",
+    buttonColor: "#00a3e0",
+  }),
+  "centralnicreseller.com": domain({
+    serverId: "gweb-prod-centralnicreseller-01",
+    name: "CentralNic Reseller",
+    logo: "/assets/logos/centralnicreseller-com.svg",
+    appearance: "light",
+    supportUrl: "https://www.centralnicreseller.com/contact/",
+    buttonColor: "#003865",
+  }),
+  "kb.centralnicreseller.com": domain({
+    serverId: "gweb-prod-centralnicreseller-01",
+    name: "CentralNic Reseller",
+    logo: "/assets/logos/kb-centralnicreseller-com.svg",
+    appearance: "dark",
+    supportUrl: "https://centralnicreseller.com/en/contact",
+    buttonColor: "#003865",
+  }),
+  "upload.teaminternet.com": domain({
+    serverId: "gweb-prod-pii-01",
+    name: "Team Internet",
+    logo: "/assets/logos/teaminternet-com-dark.svg",
+    appearance: "light",
+    supportUrl: "https://teaminternet.com/contact/",
+    buttonColor: "#01153c",
+  }),
+  "voluum.com": domain({
+    serverId: "gweb-prod-safebrands-01",
+    name: "Voluum",
+    logo: "/assets/logos/voluum-com.svg",
+    brandColor: "#0f0045",
+    appearance: "light",
+    supportUrl: "https://voluum.com/contact/",
+    buttonColor: "#7c3aed",
+  }),
+  "safebrands.fr": domain({
+    serverId: "gweb-prod-safebrands-01",
+    name: "BrandShelter",
+    logo: "/assets/logos/brandshelter-com.svg",
+    language: "fr",
+    appearance: "light",
+    supportUrl: "https://www.brandshelter.com/fr/contact",
+    buttonColor: "#28cda0",
+  }),
+  "teaminternet.com": domain({
+    serverId: "gweb-prod-teaminternet-01",
+    name: "Team Internet",
+    logo: "/assets/logos/teaminternet-com-dark.svg",
+    appearance: "light",
+    supportUrl: "https://teaminternet.com/contact/",
+    buttonColor: "#01153c",
+  }),
+  "dot.saarland": domain({
+    serverId: "gweb-prod-miscellaneous-01",
+    name: "dot Saarland",
+    logo: "/assets/logos/nic-saarland.svg",
+    appearance: "light",
+    supportUrl: "https://nic.saarland/de/kontakt",
+    buttonColor: "#00843d",
+  }),
+  "nic.saarland": domain({
+    serverId: "gweb-prod-miscellaneous-01",
+    name: "nic Saarland",
+    logo: "/assets/logos/nic-saarland.svg",
+    appearance: "light",
+    supportUrl: "https://nic.saarland/de/kontakt",
+    buttonColor: "#00843d",
+  }),
+  "dotbrandsolutions.com": domain({
+    serverId: "gweb-prod-miscellaneous-01",
+    name: "dot Brand Solutions",
+    logo: "/assets/logos/dotbrandsolutions-com.svg",
+    appearance: "light",
+    supportUrl: "https://www.brandshelter.com/contact/",
+    buttonColor: "#28cda0",
+  }),
+  "blog.moniker.com": domain({
+    serverId: "gweb-prod-miscellaneous-01",
+    name: "Moniker",
+    logo: "/assets/logos/blog-moniker-com.svg",
+    appearance: "dark",
+    supportUrl: "https://www.moniker.com/contact",
+    buttonColor: "#ffb62b",
+  }),
+  "registry.co": domain({
+    serverId: "gweb-prod-miscellaneous-01",
+    name: "Registry.co",
+    logo: "/assets/logos/registry-co.svg",
+    appearance: "light",
+    supportUrl: "https://support.registry.co/",
+    buttonColor: "#33879e",
+  }),
+  "register.bh": domain({
+    serverId: "gweb-prod-miscellaneous-01",
+    name: "register.bh",
+    logo: "/assets/logos/register-bh.png",
+    brandColor: "#7fbc03",
+    appearance: "light",
+    supportUrl: "https://register.bh/contact/",
+    buttonColor: "#7fbc03",
+  }),
+  "domains.bh": domain({
+    serverId: "gweb-prod-miscellaneous-01",
+    name: "domains.bh",
+    logo: "/assets/logos/domains-bh.png",
+    brandColor: "#ee4036",
+    appearance: "light",
+    supportUrl: "https://domains.bh/contact/",
+    buttonColor: "#ee4036",
+  }),
+  "dominic.de": domain({
+    serverId: "gweb-prod-miscellaneous-01",
+    name: "dominic.de",
+    logo: "/assets/logos/dominic-de.svg",
+    appearance: "light",
+    supportUrl: "https://dominic.de/contact#contactSupport",
+    buttonColor: "#15a1dc",
+  }),
+  "everythingbeginswitha.name": domain({
+    serverId: "gweb-prod-miscellaneous-01",
+    name: "Everything Begins With A Name",
+    logo: "/assets/logos/teaminternet-com-dark.svg",
+    appearance: "light",
+    supportUrl: "https://teaminternet.com/contact/",
+    buttonColor: "#01153c",
+  }),
+  "key-systems.net": domain({
+    serverId: "gweb-prod-miscellaneous-01",
+    name: "Key-Systems",
+    logo: "/assets/logos/key-systems-net.png",
+    appearance: "light",
+    supportUrl: "https://www.key-systems.net/kontakt/support/",
+    buttonColor: "#2a5e84",
+  }),
+  "ipm.domains": domain({
+    serverId: "gweb-prod-miscellaneous-01",
+    name: "IPM Domains",
+    logo: "/assets/logos/ipm-domains.svg",
+    appearance: "light",
+    supportUrl: "https://www.brandshelter.com/contact/",
+    buttonColor: "#28cda0",
+  }),
+  "whoistrustee.com": domain({
+    serverId: "gweb-prod-miscellaneous-01",
+    name: "Whois Trustee",
+    logo: "/assets/logos/whoistrustee-com.gif",
+    appearance: "light",
+    supportUrl: "https://whoistrustee.com/contact",
+    buttonColor: "#2a5e84",
+  }),
+  "ntld.icu": domain({
+    serverId: "gweb-prod-miscellaneous-01",
+    name: "nTLD",
+    logo: "/assets/logos/teaminternet-com-dark.svg",
+    appearance: "light",
+    supportUrl: "https://teaminternet.com/contact/",
+    buttonColor: "#01153c",
+  }),
 };
 
 const DEFAULT_KEY = "default";
+
+/** Hostnames available in the domain preview select (sorted, excludes `default`). */
+export function listPreviewHostnames() {
+  return Object.keys(CONFIG)
+    .filter((key) => key !== DEFAULT_KEY)
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+}
+
+/**
+ * CONFIG key that would match this hostname (longest suffix), or null for default-only.
+ * @param {string} hostname
+ * @returns {string | null}
+ */
+export function resolveConfigKey(hostname) {
+  for (const key of hostnameSuffixCandidates(hostname)) {
+    if (key !== DEFAULT_KEY && CONFIG[key] && typeof CONFIG[key] === "object") {
+      return key;
+    }
+  }
+  return null;
+}
+
+/**
+ * @param {object} domainEntry CONFIG entry (may include serverId)
+ * @returns {Record<string, unknown>}
+ */
+function layerFromServer(domainEntry) {
+  const sid =
+    domainEntry && domainEntry.serverId != null
+      ? String(domainEntry.serverId).trim()
+      : "";
+  if (!sid) {
+    return {};
+  }
+  const srv = SERVERS[sid];
+  if (!srv || typeof srv !== "object") {
+    return {};
+  }
+  return { ...srv };
+}
 
 /**
  * Longest-suffix-first hostnames to try against CONFIG (minimum two labels, except single-label hosts).
@@ -93,7 +292,7 @@ function hostnameSuffixCandidates(hostname) {
 }
 
 /**
- * Resolve config: first CONFIG key that matches a suffix of the hostname (longest match wins), else default.
+ * Resolve config: default → matching server (by domain's serverId) → domain entry. Omits serverId from the result.
  * @param {string} hostname from window.location.hostname
  * @returns {typeof CONFIG.default}
  */
@@ -104,8 +303,12 @@ export function getConfig(hostname) {
     }
     const entry = CONFIG[key];
     if (entry && typeof entry === "object") {
-      return { ...CONFIG.default, ...entry };
+      const serverLayer = layerFromServer(entry);
+      const merged = { ...CONFIG.default, ...serverLayer, ...entry };
+      const { serverId: _sid, ...out } = merged;
+      return out;
     }
   }
-  return { ...CONFIG.default };
+  const { serverId: _omit, ...fallback } = { ...CONFIG.default };
+  return fallback;
 }

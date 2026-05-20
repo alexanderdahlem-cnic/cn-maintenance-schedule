@@ -1,0 +1,230 @@
+{
+  "brandshelter.com": {
+    "key": "brandshelter.com",
+    "serverId": "gweb-prod-brandshelter-01",
+    "name": "BrandShelter",
+    "logo": "/assets/logos/brandshelter-com.svg",
+    "brandColor": "#000000",
+    "logoSource": "nav",
+    "error": null,
+    "logoUrl": "https://erq6bffukxp.exactdn.com/wp-content/themes/brandshelter/media/dist/img/global/brandshelter-logo.svg",
+    "bytes": 8967
+  },
+  "centralnicregistry.com": {
+    "key": "centralnicregistry.com",
+    "serverId": "gweb-prod-centralnicregistry-01",
+    "name": "CentralNic Registry",
+    "logo": "/assets/logos/centralnicregistry-com.svg",
+    "brandColor": null,
+    "logoSource": "page",
+    "error": null,
+    "logoUrl": "https://e2y83s6rmgi.exactdn.com/wp-content/themes/gweb-brand-theme/dist/img/global/cnic_registry_logo.min.svg",
+    "bytes": 4688
+  },
+  "centralnicreseller.com": {
+    "key": "centralnicreseller.com",
+    "serverId": "gweb-prod-centralnicreseller-01",
+    "name": "CentralNic Reseller",
+    "logo": "/assets/logos/centralnicreseller-com.svg",
+    "brandColor": "#000000",
+    "logoSource": "nav",
+    "error": null,
+    "logoUrl": "https://eui2n2g483r.exactdn.com/wp-content/themes/team-internet/media/dist/img/global/logo.svg",
+    "bytes": 3555
+  },
+  "kb.centralnicreseller.com": {
+    "key": "kb.centralnicreseller.com",
+    "serverId": "gweb-prod-centralnicreseller-01",
+    "name": "CentralNic Reseller",
+    "logo": "/assets/logos/kb-centralnicreseller-com.svg",
+    "brandColor": "#ffffff",
+    "logoSource": "page",
+    "error": null,
+    "logoUrl": "https://kb.centralnicreseller.com/dist/img/logo-centralnicreseller.svg",
+    "bytes": 3555
+  },
+  "upload.teaminternet.com": {
+    "key": "upload.teaminternet.com",
+    "serverId": "gweb-prod-pii-01",
+    "name": "Team Internet",
+    "logo": "/assets/logos/teaminternet-com-dark.svg",
+    "brandColor": null,
+    "logoSource": "override",
+    "error": null,
+    "logoUrl": "https://upload.teaminternet.com/assets/pii/images/logo-full-color.png",
+    "bytes": 6281
+  },
+  "voluum.com": {
+    "key": "voluum.com",
+    "serverId": "gweb-prod-safebrands-01",
+    "name": "Voluum",
+    "logo": "/assets/logos/voluum-com.svg",
+    "brandColor": "#0f0045",
+    "logoSource": "nav",
+    "error": null,
+    "logoUrl": "https://voluum.com/wp-content/themes/voluum/images/voluum-logo-dark.svg",
+    "bytes": 1417
+  },
+  "safebrands.fr": {
+    "key": "safebrands.fr",
+    "serverId": "gweb-prod-safebrands-01",
+    "name": "BrandShelter",
+    "language": "fr",
+    "logo": "/assets/logos/brandshelter-com.svg",
+    "brandColor": null,
+    "logoSource": "override",
+    "error": null
+  },
+  "teaminternet.com": {
+    "key": "teaminternet.com",
+    "serverId": "gweb-prod-teaminternet-01",
+    "name": "Team Internet",
+    "logo": "/assets/logos/teaminternet-com-dark.svg",
+    "brandColor": "#000000",
+    "logoSource": "override",
+    "error": null
+  },
+  "dot.saarland": {
+    "key": "dot.saarland",
+    "serverId": "gweb-prod-miscellaneous-01",
+    "name": "dot Saarland",
+    "logo": "/assets/logos/nic-saarland.svg",
+    "brandColor": "#ffffff",
+    "logoSource": "override",
+    "error": null,
+    "logoUrl": "https://nic.saarland/assets/img/saarland.svg",
+    "bytes": 94177
+  },
+  "nic.saarland": {
+    "key": "nic.saarland",
+    "serverId": "gweb-prod-miscellaneous-01",
+    "name": "nic Saarland",
+    "logo": "/assets/logos/nic-saarland.svg",
+    "brandColor": "#ffffff",
+    "logoSource": "page",
+    "error": null,
+    "logoUrl": "https://nic.saarland/assets/img/saarland.svg",
+    "bytes": 94177
+  },
+  "dotbrandsolutions.com": {
+    "key": "dotbrandsolutions.com",
+    "serverId": "gweb-prod-miscellaneous-01",
+    "name": "dot Brand Solutions",
+    "logo": "/assets/logos/dotbrandsolutions-com.svg",
+    "brandColor": "#000000",
+    "logoSource": "nav",
+    "error": null,
+    "logoUrl": "https://erq6bffukxp.exactdn.com/wp-content/themes/brandshelter/media/dist/img/global/brandshelter-logo.svg",
+    "bytes": 8967
+  },
+  "blog.moniker.com": {
+    "key": "blog.moniker.com",
+    "serverId": "gweb-prod-miscellaneous-01",
+    "name": "Moniker",
+    "logo": "/assets/logos/blog-moniker-com.svg",
+    "brandColor": null,
+    "logoSource": "nav",
+    "error": null,
+    "logoUrl": "https://www.moniker.com/blog/wp-content/themes/gweb-brand-theme/dist/img/global/logo.svg",
+    "bytes": 1654
+  },
+  "registry.co": {
+    "key": "registry.co",
+    "serverId": "gweb-prod-miscellaneous-01",
+    "name": "Registry.co",
+    "logo": "/assets/logos/registry-co.svg",
+    "brandColor": null,
+    "logoSource": "nav",
+    "error": null,
+    "logoUrl": "https://ev8megkeqni.exactdn.com/wp-content/themes/gweb-brand-theme/dist/img/global/logo.svg",
+    "bytes": 2846
+  },
+  "register.bh": {
+    "key": "register.bh",
+    "serverId": "gweb-prod-miscellaneous-01",
+    "name": "register.bh",
+    "logo": "/assets/logos/register-bh.png",
+    "brandColor": "#7fbc03",
+    "logoSource": "nav",
+    "error": null,
+    "logoUrl": "https://register.bh/wp-content/uploads/2021/05/dotbh-logo-100x55-1.png",
+    "bytes": 1037
+  },
+  "domains.bh": {
+    "key": "domains.bh",
+    "serverId": "gweb-prod-miscellaneous-01",
+    "name": "domains.bh",
+    "logo": "/assets/logos/domains-bh.png",
+    "brandColor": "#ee4036",
+    "logoSource": "nav",
+    "error": null,
+    "logoUrl": "https://domains.bh/wp-content/uploads/2019/05/bahrain-domain-registry-logo-hr-294x100.png",
+    "bytes": 6254
+  },
+  "dominic.de": {
+    "key": "dominic.de",
+    "serverId": "gweb-prod-miscellaneous-01",
+    "name": "dominic.de",
+    "logo": "/assets/logos/dominic-de.svg",
+    "brandColor": null,
+    "logoSource": "nav",
+    "error": null,
+    "logoUrl": "https://dominic.de/wp-content/uploads/logo.svg",
+    "bytes": 2569
+  },
+  "everythingbeginswitha.name": {
+    "key": "everythingbeginswitha.name",
+    "serverId": "gweb-prod-miscellaneous-01",
+    "name": "Everything Begins With A Name",
+    "logo": "/assets/logos/teaminternet-com-dark.svg",
+    "brandColor": "#000000",
+    "logoSource": "override",
+    "error": null,
+    "logoUrl": "https://exv7dq6a6d7.exactdn.com/wp-content/themes/teaminternet/media/dist/img//global/team-internet-logo-white.svg",
+    "bytes": 4413
+  },
+  "key-systems.net": {
+    "key": "key-systems.net",
+    "serverId": "gweb-prod-miscellaneous-01",
+    "name": "Key-Systems",
+    "logo": "/assets/logos/key-systems-net.png",
+    "brandColor": null,
+    "logoSource": "nav",
+    "error": null,
+    "logoUrl": "https://epm6nbtwygk.exactdn.com/wp-content/uploads/2023/03/Key-Systems_tm_RGB.png?strip=all&lossy=1&ssl=1",
+    "bytes": 7794
+  },
+  "ipm.domains": {
+    "key": "ipm.domains",
+    "serverId": "gweb-prod-miscellaneous-01",
+    "name": "IPM Domains",
+    "logo": "/assets/logos/ipm-domains.svg",
+    "brandColor": "#000000",
+    "logoSource": "nav",
+    "error": null,
+    "logoUrl": "https://erq6bffukxp.exactdn.com/wp-content/themes/brandshelter/media/dist/img/global/brandshelter-logo.svg",
+    "bytes": 8967
+  },
+  "whoistrustee.com": {
+    "key": "whoistrustee.com",
+    "serverId": "gweb-prod-miscellaneous-01",
+    "name": "Whois Trustee",
+    "logo": "/assets/logos/whoistrustee-com.gif",
+    "brandColor": null,
+    "logoSource": "page",
+    "error": null,
+    "logoUrl": "https://whoistrustee.com/images/site/logo_main.gif",
+    "bytes": 15175
+  },
+  "ntld.icu": {
+    "key": "ntld.icu",
+    "serverId": "gweb-prod-miscellaneous-01",
+    "name": "nTLD",
+    "logo": "/assets/logos/teaminternet-com-dark.svg",
+    "brandColor": "#000000",
+    "logoSource": "override",
+    "error": null,
+    "logoUrl": "https://ntld.icu/wp-content/themes/teaminternet/media/dist/img//global/team-internet-logo-white.svg",
+    "bytes": 4413
+  }
+}
